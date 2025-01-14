@@ -3,6 +3,7 @@ import getpass
 import os
 import pickle
 import random
+import json
 
 from robin_stocks.robinhood.helper import *
 from robin_stocks.robinhood.urls import *
@@ -145,8 +146,7 @@ def login(username=None, password=None, expiresIn=86400, scope='internal', by_sm
                             'expires_in': expiresIn, 'scope': scope, 'detail': 'logged in using authentication in {0}'.format(creds_file),
                             'backup_code': None, 'refresh_token': refresh_token})
             except:
-                print(
-                    "ERROR: There was an issue loading pickle file. Authentication may be expired - logging in normally.", file=get_output())
+                print(json.dumps({"Error":"ERROR: There was an issue loading pickle file. Authentication may be expired - logging in normally."}))
                 set_login_state(False)
                 update_session('Authorization', None)
         else:
@@ -207,7 +207,7 @@ def login(username=None, password=None, expiresIn=86400, scope='internal', by_sm
                 raise Exception(data['detail'])
             raise Exception(f"Received an error response {data}")
     else:
-        raise Exception('Error: Trouble connecting to robinhood API. Check internet connection.')
+        raise Exception(json.dumps({"Error":'Error: Trouble connecting to robinhood API. Check internet connection.'}))
     return(data)
 
 def _validate_sherrif_id(device_token:str, workflow_id:str,mfa_code:str):
@@ -226,7 +226,11 @@ def _validate_sherrif_id(device_token:str, workflow_id:str,mfa_code:str):
         challenge_payload = {
             'response': mfa_code
         }
-        challenge_response = request_post(url=challenge_url, payload=challenge_payload,json=True )
+
+        challenge_response = request_post(url=challenge_url, payload=challenge_payload,json=True)
+        print(json.dumps(challenge_response))
+
+
         if challenge_response["status"] == "validated":
             inquiries_payload = {"sequence":0,"user_input":{"status":"continue"}}
             inquiries_response = request_post(url=inquiries_url, payload=inquiries_payload,json=True )
