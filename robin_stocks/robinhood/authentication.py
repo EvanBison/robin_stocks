@@ -228,7 +228,7 @@ def _validate_sherrif_id(device_token:str, workflow_id:str,mfa_code:str):
         }
 
         challenge_response = request_post(url=challenge_url, payload=challenge_payload,json=True)
-        print(json.dumps(challenge_response))
+        # print(json.dumps(challenge_response))
 
 
         if challenge_response["status"] == "validated":
